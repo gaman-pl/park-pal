@@ -1,0 +1,29 @@
+name: Remove labels auto-created by Dependabot
+
+on:
+  pull_request:
+    types: [opened, labeled]
+  workflow_dispatch:
+
+jobs:
+  clean-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: github.event_name == 'workflow_dispatch' || github.actor == 'dependabot[bot]'
+    steps:
+      - name: Remove all labels
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          labels: |
+            github-actions
+            dependencies
+            javascript
+            security
+            python
+            dotnet
+            ruby
+            rust
+            php
+            go
