@@ -19,20 +19,23 @@
 ```mermaid
 flowchart LR
     actor(Kierowca) ==> eCar([samochód]) ==> iCam(Kamera)
+    iCam ==> ePlate([numer<br />rejestracji]) ==> HA((Home<br />Assistant))
+    
     actor ==> eCode([QR kod]) ==> iQR(Czytnik<br />kodów)
+    iQR ==> eID([numer<br />rezerwacji]) ==> HA
+    
     actor ==> eFinger([palec]) ==> iTS(Ekran<br />dotykowy)
-    actor ==> eFinger ==> iBP(Klawisz)
-    actor ==> ePhone([połączenie]) ==> iPH(Komórka)
-    actor ==> eMess([SMS]) ==> iPH(Stary<br />Telefon)
-    iCam ==> ePlate([numer<br />>rejestracji]) ==> HA((Home<br />Assistant))
-    iQR ==> eID([numer rezerwacji]) ==> HA
-    iTS ==> eID
     HA ==> eReq([tekst]) ==> iTS
+    iTS ==> eText([dane]) ==> HA
+    
+    actor ==> ePhone([połączenie]) ==> iPH(Stary<br />telefon)
+    actor ==> eMess([SMS]) ==> iPH
     iPH ==> ePN([numer<br />telefonu]) ==> HA
-    iBP ==> eTrig1([impuls]) ==> HA
-    HA ==> eDS([numer telefonu<br />numer rezerwacji<br />numer rejestracji]) ==> apiPF(ParkFlow API)
-    apiPF ==> eRS([rezerwacja potwierdzona?<br />wolne miejsce?]) ==> HA
-    HA ==> eTrig2([impuls]) ==> G(Szlaban)
+    
+    HA ==> eDS([numer telefonu<br />numer rezerwacji<br />numer rejestracji]) ==> apiPF(ParkFlow)
+    apiPF ==> eRS([potwierdzona?<br />miejsce?]) ==> HA
+    
+    HA ==> eTrig2([impuls]) ==> G(Szlaban) ==> End((o))
 ```
 
 ## Szlaban wyjazdowy
@@ -40,26 +43,36 @@ flowchart LR
 ```mermaid
 flowchart LR
     actor(Kierowca) ==> eCar([samochód]) ==> iCam(Kamera)
+    iCam ==> ePlate([numer<br />rejestracji]) ==> HA((Home<br />Assistant))
+    
     actor ==> eCode([QR kod]) ==> iQR(Czytnik<br />kodów)
+    iQR ==> eID([numer<br />rezerwacji]) ==> HA
+    
     actor ==> eFinger([palec]) ==> iTS(Ekran<br />dotykowy)
-    actor ==> eFinger ==> iBP(Klawisz)
-    actor ==> ePhone([połączenie]) ==> iPH(Komórka)
-    actor ==> eMess([SMS]) ==> iPH(Stary<br />Telefon)
-    iCam ==> ePlate([numer<br />>rejestracji]) ==> HA((Home<br />Assistant))
-    iQR ==> eID([numer rezerwacji]) ==> HA
-    iTS ==> eID
     HA ==> eReq([tekst]) ==> iTS
+    iTS ==> eText([dane]) ==> HA
+    
+    actor ==> ePhone([połączenie]) ==> iPH(Stary<br />telefon)
+    actor ==> eMess([SMS]) ==> iPH
     iPH ==> ePN([numer<br />telefonu]) ==> HA
-    iBP ==> eTrig1([impuls]) ==> HA
-    HA ==> eDS([numer telefonu<br />numer rezerwacji<br />numer rejestracji]) ==> apiPF(ParkFlow API)
-    apiPF ==> eRS([rezerwacja potwierdzona?<br />rezerwacja opłacona?]) ==> HA
-    HA ==> eTrig2([impuls]) ==> G(Szlaban)
-    HA ==> iTerm(Terminal<br />PAX IM30)
-    iTerm --> apiES(eService API)
-    apiES --> iTerm
-    iTerm ==> HA
-    HA ==> iCash(Kasoterminal<br />Pospay2 ONLINE)
-    iCash --> apiCRK(Centralne<br />Repozytorium Kas)
-    apiCRK --> iCash
-    iCash ==> HA
+    
+    HA ==> eDS1([numer telefonu<br />numer rezerwacji<br />numer rejestracji]) ==> eCom1([sprawdź!]) ==> apiPF(ParkFlow)
+    apiPF ==> eRS([potwierdzona?<br />opłacona?<br />dopłata?]) ==> HA
+
+    HA ==> eDS2([numer rezerwacji]) ==> eCom2([opłacona!]) ==> apiPF2(ParkFlow)
+    apiPF2 ==> eRS2([opłacona!]) ==> HA
+    
+    HA ==> eTrig2([impuls]) ==> G(Szlaban) ==> End((o))
+
+    HA ==> eReq1([transakcja<br />+ numer telefonu]) ==> iPH2(Stary<br />telefon)
+    iPH2 ==> eResp1([Wyślij SMS]) ==> End
+    
+    HA ==> eReq2([transakcja]) ==> iTerm(Terminal<br />PAX IM30)
+    iTerm ==> eResp2([opłacona?]) ==> HA
+    
+    HA ==> eText2([dane]) ==> iTS2(Ekran<br />dotykowy) ==> eReq3([transakcja<br />+ numer telefonu<br />+ adres email<br />+ KID]) ==> iCash(Kasa<br />Pospay2)
+    iCash ==> eResp3([fiskalizacja?]) ==> HA
+    
+    HA ==> eReq4([transakcja<br />+ adres email]) ==> iSMTP(Serwer<br />pocztowy)
+    iSMTP ==> eResp4([Wyślij email]) ==> HA
 ```
