@@ -48,6 +48,8 @@ flowchart LR
     apiPF ==> eRS([potwierdzona?<br />miejsce?]) ==> HA
     
     HA ==> eTrig2([impuls]) ==> G(Szlaban) ==> End((o))
+    
+    click eCar "https://github.com/the-jamb/park-pal?tab=readme-ov-file#b1-odczyt-rejestracji-samochodu-przez-kamer--anpr" "B1. Odczyt rejestracji samochodu przez kamerę ANPR"
 ```
 
 ## A2. Szlaban wyjazdowy
