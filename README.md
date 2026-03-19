@@ -12,9 +12,21 @@
 
 <hr>
 
-# Relacje
+- [A. Relacje](#a-relacje)
+    * [A1. Szlaban wjazdowy](#a1-szlaban-wjazdowy)
+    * [A2. Szlaban wyjazdowy](#a2-szlaban-wyjazdowy)
+- [B. Przepływy na szlabanie wjazdowym](#b-przep-ywy-na-szlabanie-wjazdowym)
+    * [B1. Odczyt rejestracji samochodu przez kamerę ANPR](#b1-odczyt-rejestracji-samochodu-przez-kamer--anpr)
+    * [B2. Odczyt QR-kodu przez czytnik QR](#b2-odczyt-qr-kodu-przez-czytnik-qr)
+    * [B3. Wprowadzenie numeru rezerwacji na ekranie dotykowym](#b3-wprowadzenie-numeru-rezerwacji-na-ekranie-dotykowym)
+    * [B4. Wykonanie połączenia na numer automatyczny](#b4-wykonanie-po--czenia-na-numer-automatyczny)
+    * [B5. Wysłanie SMSa na numer automatyczny](#b5-wys-anie-smsa-na-numer-automatyczny)
+    * [B6. Rejestracja jest potwierdzona](#b6-rejestracja-jest-potwierdzona)
+    * [B7. Rejestracja nie istnieje](#b7-rejestracja-nie-istnieje)
 
-## Szlaban wjazdowy
+# A. Relacje
+
+## A1. Szlaban wjazdowy
 
 ```mermaid
 flowchart LR
@@ -38,7 +50,7 @@ flowchart LR
     HA ==> eTrig2([impuls]) ==> G(Szlaban) ==> End((o))
 ```
 
-## Szlaban wyjazdowy
+## A2. Szlaban wyjazdowy
 
 ```mermaid
 flowchart LR
@@ -75,4 +87,93 @@ flowchart LR
     
     HA ==> eReq4([transakcja<br />+ adres email]) ==> iSMTP(Serwer<br />pocztowy)
     iSMTP ==> eResp4([Wyślij email]) ==> HA
+```
+
+# B. Przepływy na szlabanie wjazdowym
+
+## B1. Odczyt rejestracji samochodu przez kamerę ANPR
+
+```mermaid
+flowchart LR
+    subgraph Kamera
+        Read[Odczyt<br />rejestracji]
+    end
+
+    subgraph Home Assistant
+        Proc([Była już<br />przetwarzana?])
+        Proc --Tak--> End((o))
+    end
+
+    subgraph Ekran dotykowy
+        Disp[Wyświetl<br />rejestrację]
+    end
+
+    subgraph ParkFlow API
+        Req1[Wyszukaj<br />rezerwację] --> Res1([Potwierdzona]) ==> B6((B6)) 
+        Req1 --> Res2([Nie istnieje]) ==> B7((B7))
+    end
+
+    Read ==> Proc
+    Proc ==Nie==> Disp
+    Disp ==> Req1
+```
+
+## B2. Odczyt QR-kodu przez czytnik QR
+
+## B3. Wprowadzenie numeru rezerwacji na ekranie dotykowym
+
+## B4. Wykonanie połączenia na numer automatyczny
+
+## B5. Wysłanie SMSa na numer automatyczny
+
+## B6. Rejestracja jest potwierdzona
+
+```mermaid
+flowchart LR
+    subgraph Home Assistant
+        Proc([Przetwórz<br />odpowiedź])
+    end
+
+    subgraph Szlaban
+        Open[Otwórz<br />szlaban]
+    end
+
+    subgraph Ekran dotykowy
+        Disp[Wyświetl komunikat<br />'Proszę wjechać!']
+    end
+
+    B6((B6)) ==> Proc
+    Proc ==> Open
+    Proc ==> Disp
+```
+
+## B7. Rejestracja nie istnieje
+
+```mermaid
+flowchart LR
+    subgraph Home Assistant
+        Proc([Przetwórz<br />odpowiedź])
+    end
+
+    subgraph Szlaban
+        Open[Otwórz<br />szlaban]
+    end
+
+    subgraph Ekran dotykowy
+        Disp1[Wyświetl komunikat<br />'Brak miejsc!']
+        Disp2[Wyświetl pytanie<br />'Płacisz przy wyjeździe?'] --> Res3([Tak])
+        Disp2 --> Res4([Nie]) --> Disp1
+    end
+
+    subgraph ParkFlow API
+        Req1[Sprawdź<br />wolne<br />miejsca] --> Res1([Brak])
+        Req1 --> Res2([Są])
+    end
+
+    B7((B7)) ==> Proc
+    Proc ==sezon niski==> Req1
+    Proc ==sezon wysoki==> Disp1
+    Res1 ==> Disp1
+    Res2 ==> Disp2
+    Res3 ==> Open
 ```
